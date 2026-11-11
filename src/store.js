@@ -88,7 +88,6 @@ export default createStore({
       updated_at: 0,
       cache: 5 * 60000,
       data: [],
-      responseDataKey: 'stories',
     },
     devto: {
       updated_at: 0,
@@ -179,7 +178,7 @@ export default createStore({
     },
 
     async updatePlatformData({ state, commit }, {
-      platform, forced, url, transform, fetchOptions,
+      platform, forced, url, transform, fetchOptions, parseResponse,
     }) {
       const platformConfig = state[platform];
       const threshold = platformConfig.cache;
@@ -192,9 +191,14 @@ export default createStore({
           throw new Error(`Failed to load ${platform}: ${response.status}`);
         }
 
-        let data = await response.json();
-        if ('responseDataKey' in platformConfig) {
-          data = data[platformConfig.responseDataKey];
+        let data;
+        if (parseResponse) {
+          data = parseResponse(await response.text());
+        } else {
+          data = await response.json();
+          if ('responseDataKey' in platformConfig) {
+            data = data[platformConfig.responseDataKey];
+          }
         }
 
         if (typeof transform === 'function') {

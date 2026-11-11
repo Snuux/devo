@@ -21,7 +21,9 @@
   },
   "host_permissions": [
     "https://lobste.rs/*",
-    "https://www.reddit.com/*"
+    "https://www.reddit.com/*",
+    "https://www.producthunt.com/*",
+    "https://designernews.co/*"
   ],
   "permissions": [
     "storage"

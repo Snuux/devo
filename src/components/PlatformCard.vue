@@ -71,6 +71,7 @@ export default {
           url: this.options.dataUrl instanceof Function ? this.options.dataUrl(this.$store.state) : this.options.dataUrl,
           transform: this.options.transform,
           fetchOptions: this.options.fetchOptions,
+          parseResponse: this.options.parseResponse,
           forced,
         });
       } catch (error) {

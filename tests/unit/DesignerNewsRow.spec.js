@@ -3,49 +3,31 @@ import { shallowMount } from '@vue/test-utils';
 
 import Row from '@/components/DesignerNews/Row.vue';
 
-const props = {
-  id: '111922',
-  href: 'https://api.designernews.co/api/v2/stories/111922',
-  links: {
-    user: '117612',
-    comments: [
-      '329744',
-    ],
-    upvotes: [
-      '542420',
-      '542423',
-      '542426',
-      '542429',
-      '542430',
-      '542432',
-    ],
-    downvotes: [],
-  },
-  created_at: '2020-11-09T21:31:32.000Z',
-  updated_at: '2020-11-09T22:30:50.000Z',
-  title: 'Hitsnag - Send what you em‎ail‎ ‎yours‎elf directly to productivity tools.',
-  badge: 'show',
-  comment: null,
-  comment_html: null,
-  comment_count: 1,
-  category: 'show',
-  pinned_at: null,
-  url: 'https://www.producthunt.com/upcoming/hitsnag',
-  sponsored: false,
-  vote_count: 7,
-  hostname: 'producthunt.com',
-  twitter_handles: [],
+const item = {
+  title: 'Nobody wants a blank page, nobody touches a perfect one',
+  url: 'https://uxdesign.cc/nobody-wants-a-blank-page',
+  threadLink: 'https://designernews.co/stories/nobody-wants-a-blank-page-nobody-touches-a-perfect-one',
+  hostname: 'uxdesign.cc',
+  points: 7,
+  commentCount: 1,
 };
 
 describe('DesignerNews/Row.vue', () => {
   it('row is properly rendered', () => {
-    const wrapper = shallowMount(Row, { propsData: { item: props } });
+    const wrapper = shallowMount(Row, { props: { item } });
 
-    expect(wrapper.find('.site-string').text()).to.equal(`(${props.hostname})`);
-    expect(wrapper.find('.site-string > a').attributes('href')).to.equal(`https://${props.hostname}`);
-    expect(wrapper.find('.title').text()).to.equal(props.title);
-    expect(wrapper.find('.title > a').attributes('href')).to.equal(props.url);
-    expect(wrapper.find('.thread-link').attributes('href')).to.equal(`https://www.designernews.co/stories/${props.id}`);
-    expect(wrapper.find('.thread-link').text()).to.equal(`${props.comment_count} comments`);
+    expect(wrapper.find('.site-string').text()).to.equal(`(${item.hostname})`);
+    expect(wrapper.find('.site-string > a').attributes('href')).to.equal(`https://${item.hostname}`);
+    expect(wrapper.find('.title').text()).to.equal(item.title);
+    expect(wrapper.find('.title > a').attributes('href')).to.equal(item.url);
+    expect(wrapper.find('.thread-link').attributes('href')).to.equal(item.threadLink);
+    expect(wrapper.find('.thread-link').text()).to.equal('1 comment');
+    expect(wrapper.find('.meta-data').text()).to.contain('7 points');
+  });
+
+  it('offers to discuss a story without comments', () => {
+    const wrapper = shallowMount(Row, { props: { item: { ...item, commentCount: 0 } } });
+
+    expect(wrapper.find('.thread-link').text()).to.equal('discuss');
   });
 });

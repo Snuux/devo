@@ -5,6 +5,8 @@ import TwoLeftOneRight from './layouts/TwoLeftOneRight.vue';
 import OneLeftTwoRight from './layouts/OneLeftTwoRight.vue';
 import TwoRowsTwoColumns from './layouts/TwoRowsTwoColumns.vue';
 import { buildUrl, toItems, BASE_URL } from './components/Reddit/reddit';
+import parseProductHunt from './components/ProductHunt/parse';
+import parseDesignerNews from './components/DesignerNews/parse';
 
 const DEFAULT_NIGHTMODE_BACKGROUND = '31363e';
 
@@ -46,7 +48,8 @@ export default {
       },
     },
     producthunt: {
-      dataUrl: 'https://devo.ams3.digitaloceanspaces.com/producthunt.json',
+      dataUrl: 'https://www.producthunt.com/feed',
+      parseResponse: parseProductHunt,
       title: 'Product Hunt',
       icon: ['fab', 'product-hunt'],
       titleFontColor: 'ffffff',
@@ -63,14 +66,15 @@ export default {
       },
     },
     designernews: {
-      dataUrl: 'https://www.designernews.co/api/v2/stories',
+      dataUrl: 'https://designernews.co/',
+      parseResponse: parseDesignerNews,
       title: 'Designer News',
       icon: ['fas', 'newspaper'],
       titleFontColor: 'ffffff',
       titleBackgroundColor: '2d72d9',
       loadingColor: '2d72d9',
 
-      externalLink: 'https://www.designernews.co',
+      externalLink: 'https://designernews.co',
       bodyComponentName: 'DesignerNewsBody',
 
       nightMode: {
