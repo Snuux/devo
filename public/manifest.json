@@ -20,7 +20,9 @@
     "service_worker": "background.js"
   },
   "host_permissions": [
-    "https://lobste.rs/*"
+    "https://lobste.rs/*",
+    "https://www.producthunt.com/*",
+    "https://designernews.co/*"
   ],
   "permissions": [
     "storage"

@@ -6,14 +6,14 @@
           <a :href="hostnameLink"> ({{ item.hostname }}) </a>
         </div>
         <div class="title truncate">
-          <a :href="itemLink" :title="item.title">{{ item.title }}</a>
+          <a :href="item.url" :title="item.title">{{ item.title }}</a>
         </div>
       </div>
     </div>
     <div class="meta-data">
-      {{ item.vote_count }} points | {{ relativeDate }} ago |
-      <a class="thread-link" :href="threadLink">
-        {{ item.comment_count > 0 ? `${item.comment_count} comments` : 'discuss' }}
+      {{ item.points }} {{ item.points === 1 ? 'point' : 'points' }} |
+      <a class="thread-link" :href="item.threadLink">
+        {{ commentsLabel }}
       </a>
     </div>
   </div>
@@ -25,60 +25,18 @@ export default {
   props: {
     item: {
       required: true,
+      type: Object,
     },
-  },
-  data() {
-    return {
-      baseUrl: 'https://www.designernews.co/',
-    };
   },
   computed: {
-    userLink() {
-      return `${this.baseUrl}${this.item.links.user}`;
-    },
-    threadLink() {
-      return `${this.baseUrl}stories/${this.item.id}`;
-    },
     hostnameLink() {
       return `https://${this.item.hostname}`;
     },
-    itemLink() {
-      return this.item.url && this.item.url.startsWith('http') ? this.item.url : this.threadLink;
-    },
-    relativeDate() {
-      return this.timeSince(new Date(this.item.created_at));
-    },
-  },
-  methods: {
-    timeSince(date) {
-      const seconds = Math.floor((new Date() - date) / 1000);
-      let interval = Math.floor(seconds / 31536000);
-
-      if (interval > 1) {
-        return `${interval} years`;
+    commentsLabel() {
+      if (this.item.commentCount > 0) {
+        return this.item.commentCount === 1 ? '1 comment' : `${this.item.commentCount} comments`;
       }
-
-      interval = Math.floor(seconds / 2592000);
-      if (interval > 1) {
-        return `${interval} months`;
-      }
-
-      interval = Math.floor(seconds / 86400);
-      if (interval >= 1) {
-        return interval + (interval === 1 ? ' day' : ' days');
-      }
-
-      interval = Math.floor(seconds / 3600);
-      if (interval >= 1) {
-        return interval + (interval === 1 ? ' hour' : ' hours');
-      }
-
-      interval = Math.floor(seconds / 60);
-      if (interval >= 1) {
-        return interval + (interval === 1 ? 'minute' : ' minutes');
-      }
-
-      return `${Math.floor(seconds)} seconds`;
+      return 'discuss';
     },
   },
 };

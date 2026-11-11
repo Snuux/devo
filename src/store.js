@@ -84,7 +84,6 @@ export default createStore({
       updated_at: 0,
       cache: 5 * 60000,
       data: [],
-      responseDataKey: 'stories',
     },
     devto: {
       updated_at: 0,
@@ -138,7 +137,7 @@ export default createStore({
       context.commit('setLayout', layout);
     },
 
-    async updatePlatformData({ state, commit }, { platform, forced, url }) {
+    async updatePlatformData({ state, commit }, { platform, forced, url, parseResponse }) {
       const platformConfig = state[platform];
       const threshold = platformConfig.cache;
       const lastUpdate = platformConfig.updated_at;
@@ -146,9 +145,17 @@ export default createStore({
 
       if (!lastUpdate || now - lastUpdate > threshold || forced) {
         const response = await fetch(url);
-        let data = await response.json();
-        if ('responseDataKey' in platformConfig) {
-          data = data[platformConfig.responseDataKey];
+        let data;
+        if (parseResponse) {
+          if (!response.ok) {
+            throw new Error(`${platform} responded with ${response.status}`);
+          }
+          data = parseResponse(await response.text());
+        } else {
+          data = await response.json();
+          if ('responseDataKey' in platformConfig) {
+            data = data[platformConfig.responseDataKey];
+          }
         }
         commit('setPlatformData', { platform, data });
       }

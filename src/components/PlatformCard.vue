@@ -56,6 +56,7 @@ export default {
         platform: this.platform,
         url: this.options.dataUrl instanceof Function ? this.options.dataUrl() : this.options.dataUrl,
         forced,
+        parseResponse: this.options.parseResponse,
       });
       this.loading = false;
     },
