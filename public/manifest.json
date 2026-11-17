@@ -23,7 +23,8 @@
     "https://lobste.rs/*",
     "https://www.reddit.com/*",
     "https://www.producthunt.com/*",
-    "https://designernews.co/*"
+    "https://designernews.co/*",
+    "https://www.ycombinator.com/*"
   ],
   "permissions": [
     "storage"

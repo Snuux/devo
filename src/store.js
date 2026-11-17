@@ -114,6 +114,12 @@ export default createStore({
         subredditPlacement: DEFAULT_SUBREDDIT_PLACEMENT,
       },
     },
+    yclaunches: {
+      updated_at: 0,
+      cache: 15 * 60000,
+      data: [],
+      responseDataKey: 'hits',
+    },
   },
   mutations: {
     set24HourFormat(state, is24HourFormat) {

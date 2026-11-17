@@ -1,7 +1,7 @@
 import { createApp } from 'vue';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-  faGithub, faHackerNewsSquare, faProductHunt, faDev, faRedditAlien,
+  faGithub, faHackerNewsSquare, faProductHunt, faDev, faRedditAlien, faYCombinator,
 } from '@fortawesome/free-brands-svg-icons';
 import {
   faSyncAlt, faCodeBranch, faStar, faChevronUp, faComment, faExternalLinkAlt, faSun, faMoon,
@@ -14,7 +14,8 @@ import store from './store';
 
 library.add([faGithub, faHackerNewsSquare, faProductHunt, faSyncAlt,
   faCodeBranch, faStar, faChevronUp, faComment, faExternalLinkAlt, faSun, faMoon, faCheck, faCaretUp, faCaretDown,
-  faNewspaper, faDev, faHeart, faAnchor, faThLarge, faFolder, faRedditAlien, faCog, faEye, faEyeSlash]);
+  faNewspaper, faDev, faHeart, faAnchor, faThLarge, faFolder, faRedditAlien, faCog, faEye, faEyeSlash,
+  faYCombinator]);
 
 const app = createApp(App);
 app.component('font-awesome-icon', FontAwesomeIcon);
