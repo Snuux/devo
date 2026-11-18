@@ -15,13 +15,14 @@
       <component
         v-if="hasSettings && settingsVisible"
         :is="options.settingsComponentName"
+        v-bind="cardProps"
         @close="closeSettings"
         @saved="onSettingsSaved"
       ></component>
       <loading :color="loadingColorBasedOnMode" v-else-if="loading"></loading>
       <div v-else-if="failed" class="load-error">Could not load {{ options.title }}. Try refreshing.</div>
       <slot v-else name="card-body">
-        <component :is="options.bodyComponentName"></component>
+        <component :is="options.bodyComponentName" v-bind="cardProps"></component>
       </slot>
     </template>
   </card>
@@ -30,6 +31,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex';
 import settings from '@/settings';
+import { isPerCard } from '@/cardState';
 import Card from '@/components/Card.vue';
 import Loading from '@/components/Loading.vue';
 import CustomSelect from '@/components/PlatformSelect.vue';
@@ -68,7 +70,8 @@ export default {
       try {
         await this.updatePlatformData({
           platform: this.platform,
-          url: this.options.dataUrl instanceof Function ? this.options.dataUrl(this.$store.state) : this.options.dataUrl,
+          cardIndex: this.cardIndex,
+          url: this.options.dataUrl instanceof Function ? this.options.dataUrl(this.$store.state, this.cardIndex) : this.options.dataUrl,
           transform: this.options.transform,
           fetchOptions: this.options.fetchOptions,
           parseResponse: this.options.parseResponse,
@@ -116,6 +119,11 @@ export default {
 
     options() {
       return settings.platforms[this.platform];
+    },
+
+    // only sources with per-card state receive the card index, other bodies would render it as a DOM attribute.
+    cardProps() {
+      return isPerCard(this.platform) ? { cardIndex: this.cardIndex } : {};
     },
 
     hasSettings() {

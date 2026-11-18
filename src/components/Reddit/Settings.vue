@@ -47,17 +47,24 @@ let instanceCount = 0;
 export default {
   name: 'RedditSettings',
   emits: ['close', 'saved'],
+  props: {
+    cardIndex: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     instanceCount += 1;
+    const { settings } = this.$store.getters.getCardState('reddit', this.cardIndex);
 
     return {
       inputId: `rd-settings-subreddits-${instanceCount}`,
       sortId: `rd-settings-sort-${instanceCount}`,
       placementId: `rd-settings-placement-${instanceCount}`,
-      subredditsText: this.$store.state.reddit.settings.subreddits.join(', '),
-      sort: normalizeSort(this.$store.state.reddit.settings.sort),
+      subredditsText: settings.subreddits.join(', '),
+      sort: normalizeSort(settings.sort),
       sorts: SORTS,
-      subredditPlacement: normalizeSubredditPlacement(this.$store.state.reddit.settings.subredditPlacement),
+      subredditPlacement: normalizeSubredditPlacement(settings.subredditPlacement),
       placements: SUBREDDIT_PLACEMENTS,
       error: '',
       importing: false,
@@ -72,7 +79,9 @@ export default {
         return;
       }
 
-      this.setRedditSettings({ subreddits, sort: this.sort, subredditPlacement: this.subredditPlacement });
+      this.setRedditSettings({
+        cardIndex: this.cardIndex, subreddits, sort: this.sort, subredditPlacement: this.subredditPlacement,
+      });
       this.$emit('saved');
     },
 
