@@ -6,19 +6,31 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 import Row from '@/components/Reddit/Row.vue';
 import { normalizeSubredditPlacement } from '@/components/Reddit/reddit';
 
 export default {
   name: 'Body',
   components: { Row },
+  props: {
+    cardIndex: {
+      type: Number,
+      required: true,
+    },
+  },
   computed: {
-    ...mapState({
-      lines: state => state.reddit.data,
-      // settings saved by an older version have no placement yet.
-      subredditInTitle: state => normalizeSubredditPlacement(state.reddit.settings.subredditPlacement) === 'title',
-    }),
+    card() {
+      return this.getCardState('reddit', this.cardIndex);
+    },
+    lines() {
+      return this.card.data;
+    },
+    // settings saved by an older version have no placement yet.
+    subredditInTitle() {
+      return normalizeSubredditPlacement(this.card.settings.subredditPlacement) === 'title';
+    },
+    ...mapGetters(['getCardState']),
   },
 };
 </script>

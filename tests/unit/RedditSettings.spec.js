@@ -7,7 +7,17 @@ import Settings from '@/components/Reddit/Settings.vue';
 const mountSettings = () => {
   const saved = [];
   const store = createStore({
-    state: { reddit: { settings: { subreddits: ['programming'], sort: 'hot', subredditPlacement: 'meta' } } },
+    state: {
+      reddit: {
+        cards: {
+          0: { settings: { subreddits: ['other'], sort: 'new', subredditPlacement: 'title' } },
+          1: { settings: { subreddits: ['programming'], sort: 'hot', subredditPlacement: 'meta' } },
+        },
+      },
+    },
+    getters: {
+      getCardState: state => (platform, cardIndex) => state[platform].cards[cardIndex],
+    },
     actions: {
       setRedditSettings(context, payload) {
         saved.push(payload);
@@ -15,23 +25,23 @@ const mountSettings = () => {
     },
   });
 
-  return { saved, wrapper: mount(Settings, { global: { plugins: [store] } }) };
+  return { saved, wrapper: mount(Settings, { props: { cardIndex: 1 }, global: { plugins: [store] } }) };
 };
 
 describe('RedditSettings.vue', () => {
-  it('shows the current subreddits', () => {
+  it('shows the current subreddits of its own card', () => {
     const { wrapper } = mountSettings();
 
     expect(wrapper.find('.rd-settings-input').element.value).to.equal('programming');
   });
 
-  it('saves the entered subreddits', async () => {
+  it('saves the entered subreddits for its own card', async () => {
     const { wrapper, saved } = mountSettings();
 
     await wrapper.find('.rd-settings-input').setValue('r/vuejs, rust');
     await wrapper.find('form').trigger('submit');
 
-    expect(saved).to.deep.equal([{ subreddits: ['vuejs', 'rust'], sort: 'hot', subredditPlacement: 'meta' }]);
+    expect(saved).to.deep.equal([{ cardIndex: 1, subreddits: ['vuejs', 'rust'], sort: 'hot', subredditPlacement: 'meta' }]);
     expect(wrapper.emitted().saved).to.have.lengthOf(1);
   });
 
@@ -42,7 +52,7 @@ describe('RedditSettings.vue', () => {
     await wrapper.find('.rd-settings-sort').setValue('top');
     await wrapper.find('form').trigger('submit');
 
-    expect(saved).to.deep.equal([{ subreddits: ['programming'], sort: 'top', subredditPlacement: 'meta' }]);
+    expect(saved).to.deep.equal([{ cardIndex: 1, subreddits: ['programming'], sort: 'top', subredditPlacement: 'meta' }]);
   });
 
   it('saves where the subreddit is shown', async () => {
@@ -52,7 +62,7 @@ describe('RedditSettings.vue', () => {
     await wrapper.find('.rd-settings-placement').setValue('title');
     await wrapper.find('form').trigger('submit');
 
-    expect(saved).to.deep.equal([{ subreddits: ['programming'], sort: 'hot', subredditPlacement: 'title' }]);
+    expect(saved).to.deep.equal([{ cardIndex: 1, subreddits: ['programming'], sort: 'hot', subredditPlacement: 'title' }]);
   });
 
   it('does not save without a valid subreddit', async () => {

@@ -1,9 +1,8 @@
 import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
-import {
-  parseSubreddits, normalizeSort, normalizeSubredditPlacement, DEFAULT_SUBREDDITS, DEFAULT_SORT, DEFAULT_SUBREDDIT_PLACEMENT,
-} from './components/Reddit/reddit';
+import { parseSubreddits, normalizeSort, normalizeSubredditPlacement, DEFAULT_SUBREDDITS } from './components/Reddit/reddit';
 import { DEFAULT_SETTINGS as HUGGINGFACE_DEFAULT_SETTINGS, buildUrl as buildHuggingFaceUrl, normalizeSettings } from './components/HuggingFace/huggingface';
+import { isPerCard, getCardEntry, ensureCardEntry } from './cardState';
 
 const GITHUB = 'github';
 const HACKERNEWS = 'hackernews';
@@ -106,14 +105,9 @@ export default createStore({
       data: [],
     },
     reddit: {
-      updated_at: 0,
       cache: 5 * 60000,
-      data: [],
-      settings: {
-        subreddits: [...DEFAULT_SUBREDDITS],
-        sort: DEFAULT_SORT,
-        subredditPlacement: DEFAULT_SUBREDDIT_PLACEMENT,
-      },
+      // each card keeps its own settings and posts, keyed by card index.
+      cards: {},
     },
     yclaunches: {
       updated_at: 0,
@@ -145,19 +139,22 @@ export default createStore({
     setLayout(state, layout) {
       state.settings.layout = layout;
     },
-    setRedditSettings(state, { subreddits, sort, subredditPlacement }) {
+    setRedditSettings(state, {
+      cardIndex, subreddits, sort, subredditPlacement,
+    }) {
+      const card = ensureCardEntry(state, 'reddit', cardIndex);
       const names = parseSubreddits((subreddits || []).join(' '));
-      const previous = state.reddit.settings;
+      const previous = card.settings;
       const next = {
         subreddits: names.length > 0 ? names : [...DEFAULT_SUBREDDITS],
         sort: normalizeSort(sort),
         subredditPlacement: normalizeSubredditPlacement(subredditPlacement),
       };
-      state.reddit.settings = next;
+      card.settings = next;
       // the cache belongs to the previous listing, the next update has to fetch again.
       // The subreddit placement only changes how posts are shown, so it keeps the cache.
       if (next.sort !== previous.sort || next.subreddits.join('+') !== previous.subreddits.join('+')) {
-        state.reddit.updated_at = 0;
+        card.updated_at = 0;
       }
     },
     setHuggingFaceSettings(state, settings) {
@@ -169,9 +166,10 @@ export default createStore({
         state.huggingface.data = [];
       }
     },
-    setPlatformData(state, { platform, data }) {
-      state[platform].data = data;
-      state[platform].updated_at = Date.now();
+    setPlatformData(state, { platform, cardIndex, data }) {
+      const target = isPerCard(platform) ? ensureCardEntry(state, platform, cardIndex) : state[platform];
+      target.data = data;
+      target.updated_at = Date.now();
     },
   },
   actions: {
@@ -204,11 +202,11 @@ export default createStore({
     },
 
     async updatePlatformData({ state, commit }, {
-      platform, forced, url, transform, fetchOptions, parseResponse,
+      platform, cardIndex, forced, url, transform, fetchOptions, parseResponse,
     }) {
       const platformConfig = state[platform];
       const threshold = platformConfig.cache;
-      const lastUpdate = platformConfig.updated_at;
+      const lastUpdate = isPerCard(platform) ? getCardEntry(state, platform, cardIndex).updated_at : platformConfig.updated_at;
       const now = new Date();
 
       if (!lastUpdate || now - lastUpdate > threshold || forced) {
@@ -228,13 +226,14 @@ export default createStore({
         }
 
         if (typeof transform === 'function') {
-          data = transform(data, state);
+          data = transform(data, state, cardIndex);
         }
-        commit('setPlatformData', { platform, data });
+        commit('setPlatformData', { platform, cardIndex, data });
       }
     },
   },
   getters: {
     getPlatformByIndex: state => cardIndex => state.settings.cards[cardIndex],
+    getCardState: state => (platform, cardIndex) => getCardEntry(state, platform, cardIndex),
   },
 });

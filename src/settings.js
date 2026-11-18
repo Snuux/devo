@@ -8,6 +8,7 @@ import { buildUrl, toItems, BASE_URL } from './components/Reddit/reddit';
 import parseProductHunt from './components/ProductHunt/parse';
 import parseDesignerNews from './components/DesignerNews/parse';
 import * as huggingface from './components/HuggingFace/huggingface';
+import { getCardEntry } from './cardState';
 
 const DEFAULT_NIGHTMODE_BACKGROUND = '31363e';
 
@@ -139,7 +140,7 @@ export default {
       },
     },
     reddit: {
-      dataUrl: state => buildUrl(state.reddit.settings),
+      dataUrl: (state, cardIndex) => buildUrl(getCardEntry(state, 'reddit', cardIndex).settings),
       transform: toItems,
       // reddit rejects anonymous requests, the listing is loaded with the user's reddit.com session.
       fetchOptions: { credentials: 'include' },
