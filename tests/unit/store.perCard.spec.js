@@ -27,6 +27,7 @@ const loadCard = (platform, cardIndex, transform) => store.dispatch('updatePlatf
 describe('per-card state', () => {
   beforeEach(() => {
     store.state.reddit.cards = {};
+    store.state.huggingface.cards = {};
   });
 
   afterEach(() => {
@@ -70,6 +71,28 @@ describe('per-card state', () => {
     });
 
     expect(seen).to.deep.equal([3]);
+  });
+
+  it('keeps hugging face settings apart for each card', () => {
+    store.dispatch('setHuggingFaceSettings', { cardIndex: 0, section: 'models', sort: 'likes' });
+    store.dispatch('setHuggingFaceSettings', { cardIndex: 1, section: 'datasets' });
+
+    expect(store.getters.getCardState('huggingface', 0).settings.section).to.equal('models');
+    expect(store.getters.getCardState('huggingface', 0).settings.sort).to.equal('likes');
+    expect(store.getters.getCardState('huggingface', 1).settings.section).to.equal('datasets');
+    expect(store.getters.getCardState('huggingface', 2).settings.section).to.equal('models');
+  });
+
+  it('drops the items only of the hugging face card whose listing changed', async () => {
+    respondWith(['item']);
+    await loadCard('huggingface', 0, data => data);
+    await loadCard('huggingface', 1, data => data);
+
+    store.dispatch('setHuggingFaceSettings', { cardIndex: 0, section: 'spaces' });
+
+    expect(store.getters.getCardState('huggingface', 0).data).to.deep.equal([]);
+    expect(store.getters.getCardState('huggingface', 0).updated_at).to.equal(0);
+    expect(store.getters.getCardState('huggingface', 1).data).to.deep.equal(['item']);
   });
 
   it('resets the cache only for the card whose subreddits changed', async () => {

@@ -1,4 +1,5 @@
 import { DEFAULT_SUBREDDITS, DEFAULT_SORT, DEFAULT_SUBREDDIT_PLACEMENT } from './components/Reddit/reddit';
+import { DEFAULT_SETTINGS as HUGGINGFACE_DEFAULT_SETTINGS } from './components/HuggingFace/huggingface';
 
 /**
  * Sources whose cards each keep their own settings and data.
@@ -10,6 +11,7 @@ const DEFAULT_SETTINGS = {
     sort: DEFAULT_SORT,
     subredditPlacement: DEFAULT_SUBREDDIT_PLACEMENT,
   }),
+  huggingface: () => ({ ...HUGGINGFACE_DEFAULT_SETTINGS }),
 };
 
 export const isPerCard = platform => platform in DEFAULT_SETTINGS;

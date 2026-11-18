@@ -178,8 +178,8 @@ export default {
       },
     },
     huggingface: {
-      dataUrl: state => huggingface.buildUrl(state.huggingface.settings),
-      transform: (data, state) => huggingface.toItems(data, state.huggingface.settings.section),
+      dataUrl: (state, cardIndex) => huggingface.buildUrl(getCardEntry(state, 'huggingface', cardIndex).settings),
+      transform: (data, state, cardIndex) => huggingface.toItems(data, getCardEntry(state, 'huggingface', cardIndex).settings.section),
       title: 'Hugging Face',
       icon: ['fas', 'face-smile'],
       titleFontColor: '1f2328',

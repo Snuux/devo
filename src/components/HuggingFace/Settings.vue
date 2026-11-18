@@ -64,9 +64,15 @@ let instanceCount = 0;
 export default {
   name: 'HuggingFaceSettings',
   emits: ['close', 'saved'],
+  props: {
+    cardIndex: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     instanceCount += 1;
-    const settings = normalizeSettings(this.$store.state.huggingface.settings);
+    const settings = normalizeSettings(this.$store.getters.getCardState('huggingface', this.cardIndex).settings);
     const id = name => `hf-settings-${name}-${instanceCount}`;
 
     return {
@@ -104,13 +110,16 @@ export default {
         return;
       }
 
-      this.setHuggingFaceSettings(normalizeSettings({
-        section: this.section,
-        sort: this.sort,
-        search: this.search,
-        author,
-        pipelineTag: this.pipelineTag,
-      }));
+      this.setHuggingFaceSettings({
+        cardIndex: this.cardIndex,
+        ...normalizeSettings({
+          section: this.section,
+          sort: this.sort,
+          search: this.search,
+          author,
+          pipelineTag: this.pipelineTag,
+        }),
+      });
       this.$emit('saved');
     },
 

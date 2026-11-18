@@ -6,16 +6,23 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
 import Row from '@/components/HuggingFace/Row.vue';
 
 export default {
   name: 'Body',
   components: { Row },
+  props: {
+    cardIndex: {
+      type: Number,
+      required: true,
+    },
+  },
   computed: {
-    ...mapState({
-      lines: state => state.huggingface.data,
-    }),
+    lines() {
+      return this.getCardState('huggingface', this.cardIndex).data;
+    },
+    ...mapGetters(['getCardState']),
   },
 };
 </script>

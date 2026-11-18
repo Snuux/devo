@@ -9,10 +9,18 @@ const mountSettings = (settings = {}) => {
   const store = createStore({
     state: {
       huggingface: {
-        settings: {
-          section: 'models', sort: 'likes', search: '', author: '', pipelineTag: '', ...settings,
+        cards: {
+          0: { settings: { section: 'datasets', sort: 'downloads' } },
+          2: {
+            settings: {
+              section: 'models', sort: 'likes', search: '', author: '', pipelineTag: '', ...settings,
+            },
+          },
         },
       },
+    },
+    getters: {
+      getCardState: state => (platform, cardIndex) => state[platform].cards[cardIndex],
     },
     actions: {
       setHuggingFaceSettings(context, payload) {
@@ -21,7 +29,7 @@ const mountSettings = (settings = {}) => {
     },
   });
 
-  return { saved, wrapper: mount(Settings, { global: { plugins: [store] } }) };
+  return { saved, wrapper: mount(Settings, { props: { cardIndex: 2 }, global: { plugins: [store] } }) };
 };
 
 const optionValues = select => select.findAll('option').map(option => option.element.value);
@@ -60,7 +68,7 @@ describe('HuggingFaceSettings.vue', () => {
     await wrapper.find('form').trigger('submit');
 
     expect(saved).to.deep.equal([{
-      section: 'datasets', sort: 'downloads', search: 'code', author: 'nvidia', pipelineTag: '',
+      cardIndex: 2, section: 'datasets', sort: 'downloads', search: 'code', author: 'nvidia', pipelineTag: '',
     }]);
     expect(wrapper.emitted().saved).to.have.lengthOf(1);
   });
