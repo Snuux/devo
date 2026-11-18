@@ -1,7 +1,7 @@
 import { createStore } from 'vuex';
 import createPersistedState from 'vuex-persistedstate';
 import { parseSubreddits, normalizeSort, normalizeSubredditPlacement, DEFAULT_SUBREDDITS } from './components/Reddit/reddit';
-import { DEFAULT_SETTINGS as HUGGINGFACE_DEFAULT_SETTINGS, buildUrl as buildHuggingFaceUrl, normalizeSettings } from './components/HuggingFace/huggingface';
+import { buildUrl as buildHuggingFaceUrl, normalizeSettings } from './components/HuggingFace/huggingface';
 import { isPerCard, getCardEntry, ensureCardEntry } from './cardState';
 
 const GITHUB = 'github';
@@ -116,10 +116,9 @@ export default createStore({
       responseDataKey: 'hits',
     },
     huggingface: {
-      updated_at: 0,
       cache: 15 * 60000,
-      data: [],
-      settings: { ...HUGGINGFACE_DEFAULT_SETTINGS },
+      // each card keeps its own settings and items, keyed by card index.
+      cards: {},
     },
   },
   mutations: {
@@ -157,13 +156,14 @@ export default createStore({
         card.updated_at = 0;
       }
     },
-    setHuggingFaceSettings(state, settings) {
-      const previousUrl = buildHuggingFaceUrl(state.huggingface.settings);
-      state.huggingface.settings = normalizeSettings(settings);
+    setHuggingFaceSettings(state, { cardIndex, ...settings }) {
+      const card = ensureCardEntry(state, 'huggingface', cardIndex);
+      const previousUrl = buildHuggingFaceUrl(card.settings);
+      card.settings = normalizeSettings(settings);
       // the cache belongs to the previous listing, the next update has to fetch again.
-      if (buildHuggingFaceUrl(state.huggingface.settings) !== previousUrl) {
-        state.huggingface.updated_at = 0;
-        state.huggingface.data = [];
+      if (buildHuggingFaceUrl(card.settings) !== previousUrl) {
+        card.updated_at = 0;
+        card.data = [];
       }
     },
     setPlatformData(state, { platform, cardIndex, data }) {
