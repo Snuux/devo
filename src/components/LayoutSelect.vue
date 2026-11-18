@@ -14,7 +14,7 @@
       <li
         v-for="layout in this.layouts"
         :key="layout.component"
-        @click="select(layout.component)"
+        @click.stop="select(layout.component)"
         class="option-item round-borders"
         :class="{ selected: layout.component === selectedLayout }"
       >
@@ -30,6 +30,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import settings from '@/settings';
+import clickOutside from '@/directives/clickOutside';
 
 export default {
   data() {
@@ -60,21 +61,7 @@ export default {
     },
   },
   directives: {
-    outside: {
-      bind(el, binding, vnode) {
-        el.clickOutsideEvent = (event) => {
-          // check that click was outside the el and his childrens
-          if (!(el === event.target || el.contains(event.target))) {
-            // if it was, call method provided in attribute value
-            vnode.context[binding.expression](event);
-          }
-        };
-        document.body.addEventListener('click', el.clickOutsideEvent);
-      },
-      unbind(el) {
-        document.body.removeEventListener('click', el.clickOutsideEvent);
-      },
-    },
+    outside: clickOutside,
   },
 };
 </script>

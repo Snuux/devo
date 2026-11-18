@@ -15,7 +15,7 @@
       <li
         v-for="platform in platforms"
         :key="platform.name"
-        @click="selectPlatform(platform.name)"
+        @click.stop="selectPlatform(platform.name)"
         class="option-item round-borders"
         :class="{ selected: platform.name === selectedPlatformName }"
       >
@@ -32,6 +32,7 @@
 <script>
 import { mapState, mapActions, mapGetters } from 'vuex';
 import settings from '@/settings';
+import clickOutside from '@/directives/clickOutside';
 
 export default {
   props: {
@@ -89,21 +90,7 @@ export default {
     }),
   },
   directives: {
-    outside: {
-      bind(el, binding, vnode) {
-        el.clickOutsideEvent = event => {
-          // check that click was outside the el and his childrens
-          if (!(el === event.target || el.contains(event.target))) {
-            // if it was, call method provided in attribute value
-            vnode.context[binding.expression](event);
-          }
-        };
-        document.body.addEventListener('click', el.clickOutsideEvent);
-      },
-      unbind(el) {
-        document.body.removeEventListener('click', el.clickOutsideEvent);
-      },
-    },
+    outside: clickOutside,
   },
 };
 </script>
